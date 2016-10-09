@@ -14,13 +14,16 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ColorPicker;
+import javafx.scene.control.ListView;
+import javafx.scene.control.Slider;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 
 import java.net.URL;
-
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 import View.DartBoard;
@@ -28,9 +31,17 @@ import View.DartBoardPoints;
 
 public class ViewController implements Initializable {
 
+	private int DartThrowCount;
+	private int[] DartThrows = new int[3];
+	private int Points;
+	private int sumup = 0;
+	private ArrayList<int[]> AllPoints = new ArrayList<>();
 	private DartBoard dart;
 	private DartBoardPoints points;
-	private PlayerManager playermanager;
+	private PlayerManager playermanager = new PlayerManager();
+	private ObservableList<String> items = FXCollections.observableArrayList();
+	@SuppressWarnings("rawtypes")
+	private ObservableList<TableColumn> PlayerColumn = FXCollections.observableArrayList();
 
 	@FXML
 	private Canvas DartboardCanvas;
@@ -40,19 +51,25 @@ public class ViewController implements Initializable {
 	protected void DartboarClick(MouseEvent e) {
 		int x = (int) e.getX();
 		int y = (int) e.getY();
-		// int hit = 0;
 
-		int[] hit = new int[6];
-		
 		points = new DartBoardPoints(DartboardCanvas.getHeight(), x, y);
-		
-		  if(points.check_bulls_eye()!=0){System.out.println(points.check_bulls_eye());}
-		  else if(points.check_outer_bull()!=0){System.out.println(points.check_outer_bull());}
-		  else if(points.check_inner_ring()!=0){System.out.println(points.check_inner_ring());}
-		  else if(points.check_triple_ring()!=0){System.out.println(points.check_triple_ring());}
-		  else if(points.check_outer_ring()!=0){System.out.println(points.check_outer_ring());}
-		  else if(points.check_double_ring()!=0){System.out.println(points.check_double_ring());}
-		  else System.out.println("0");
+
+		if (points.check_bulls_eye() != 0) {
+			Points = points.check_bulls_eye();
+		} else if (points.check_outer_bull() != 0) {
+			Points = points.check_outer_bull();
+		} else if (points.check_inner_ring() != 0) {
+			Points = points.check_inner_ring();
+		} else if (points.check_triple_ring() != 0) {
+			Points = points.check_triple_ring();
+		} else if (points.check_outer_ring() != 0) {
+			Points = points.check_outer_ring();
+		} else if (points.check_double_ring() != 0) {
+			Points = points.check_double_ring();
+		} else
+			Points = 0;
+
+		System.out.println("Points Currently ::" + this.getCurrentPoints());
 
 		double Scatterheight = barChart.getHeight();
 		int Xscatterplot = (int) (x / Scatterheight);
@@ -68,32 +85,121 @@ public class ViewController implements Initializable {
 		Scatterplot.getData().addAll(series1);
 
 	}
-	
+
+	private int getCurrentPoints() {
+		int DartThrow = this.CountDartThrow();
+
+		DartThrows[DartThrow] = Points;
+
+		sumup = DartThrows[DartThrow] + sumup;
+
+		return sumup;
+	}
+
+	@FXML
+	private Slider StartGameScore;
+
+	@FXML
+	protected void StartGameScoreClicked(MouseEvent e) {
+	}
+
+	@FXML
+	private Slider EndGameScore;
+
+	@FXML
+	protected void EndGameScoreClicked(MouseEvent e) {
+	}
+
+	@FXML
+	private Slider StartValueGameScore;
+
+	@FXML
+	protected void StartValueGameScoreClicked(MouseEvent e) {
+	}
+
 	@FXML
 	private Button StartGame;
-	
+
 	@FXML
-	protected void Start_Game(MouseEvent e){
+	protected void Start_Game(MouseEvent e) {
 	}
-	
+
 	@FXML
 	private Button AddPlayer;
-	
+
 	@FXML
-	protected void addPlayer(MouseEvent e){
-		String test = PlayerName.getText();
-		if (PlayerName.getText().isEmpty()){
-			this.Showdialog("Player Name", "Please enter the players name");
+	private Button DownPlayer;
+
+	@FXML
+	protected void ChangePlayerDown(MouseEvent e) {
+		if (items.size() <= 1) {
+			return;
 		}
-		
-		System.out.println(test);
-		//playermanager.createPlayer(name, color, Start, End, Start_value);();
+
+		int index = PlayerCollection.getFocusModel().getFocusedIndex();
+		items.add(index + 2, items.get(index));
+		items.remove(index);
+
 	}
-	
+
+	@FXML
+	private Button UpPlayer;
+
+	@FXML
+	protected void ChangePlayerUp(MouseEvent e) {
+		if (items.size() <= 1) {
+			return;
+		}
+
+		int index = PlayerCollection.getFocusModel().getFocusedIndex();
+		items.add(index - 1, items.get(index));
+		items.remove(index + 1);
+
+	}
+
+	@FXML
+	private ColorPicker PlayerColor;
+
+	@FXML
+	protected void PlayerColorClick(MouseEvent e) {
+
+	}
+
+	@FXML
+	private ListView<String> PlayerCollection;
+
+	@SuppressWarnings("unchecked")
+	@FXML
+	protected void addPlayer(MouseEvent e) {
+
+		if (PlayerName.getText().isEmpty()) {
+			this.Showdialog("Player Name", "Please enter the players name");
+			return;
+		}
+
+		String NamePlayer = PlayerName.getText();
+
+		if (items.contains(NamePlayer)) {
+			this.Showdialog("Player Name", "Please enter a unique name");
+			return;
+		}
+
+		// add Table column to player
+		@SuppressWarnings("rawtypes")
+		TableColumn firstNameCol = new TableColumn(NamePlayer);
+		PlayerColumn.add(firstNameCol);
+
+		items.add(NamePlayer);
+		PlayerCollection.setItems(items);
+		ScoreHis.getColumns().add(firstNameCol);
+
+		// playermanager.createPlayer(NamePlayer, color, Start, End,
+		// Start_value);
+	}
+
 	@FXML
 	private TextField PlayerName;
-	
-	
+
 	@FXML
 	private TableView<String> ScoreHis;
 
@@ -135,17 +241,6 @@ public class ViewController implements Initializable {
 		int height = (int) DartboardCanvas.getHeight();
 		dart = new DartBoard(DartboardCanvas, height);
 		dart.DrawDartBoard();
-		
-		playermanager = new PlayerManager(); 
-		
-		TableColumn firstNameCol = new TableColumn("First Name");
-        TableColumn lastNameCol = new TableColumn("Last Name");
-        
-        TableColumn emailCol = new TableColumn("Email");
-        
-        ScoreHis.getColumns().addAll(firstNameCol, lastNameCol, emailCol);
-        
-		
 
 		XYChart.Series series1 = new XYChart.Series();
 		series1.setName("2003");
@@ -174,12 +269,21 @@ public class ViewController implements Initializable {
 		barChart.getData().addAll(series1, series2, series3);
 
 	}
-	
-	private void Showdialog(String title, String HeaderText){
+
+	private void Showdialog(String title, String HeaderText) {
 		Alert alert = new Alert(AlertType.INFORMATION);
 		alert.setTitle(title);
 		alert.setHeaderText(HeaderText);
 		alert.showAndWait();
+	}
+
+	private int CountDartThrow() {
+		if (DartThrowCount == 3) {
+			AllPoints.add(DartThrows);
+			DartThrowCount = 0;
+			sumup = 0;
+		}
+		return DartThrowCount++;
 	}
 
 }
