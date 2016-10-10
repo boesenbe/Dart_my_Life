@@ -21,6 +21,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ public class ViewController implements Initializable {
 	private int[] DartThrows = new int[3];
 	private int Points;
 	private int sumup = 0;
+	private ArrayList<Color> PlayerColors = new ArrayList<>();
 	private ArrayList<int[]> AllPoints = new ArrayList<>();
 	private DartBoard dart;
 	private DartBoardPoints points;
@@ -69,7 +71,9 @@ public class ViewController implements Initializable {
 		} else
 			Points = 0;
 
-		System.out.println("Points Currently ::" + this.getCurrentPoints());
+		// System.out.println("Points Currently ::" + this.getCurrentPoints());
+
+		final ObservableList<Player> data = FXCollections.observableArrayList();
 
 		double Scatterheight = barChart.getHeight();
 		int Xscatterplot = (int) (x / Scatterheight);
@@ -184,6 +188,19 @@ public class ViewController implements Initializable {
 			return;
 		}
 
+		javafx.scene.paint.Color color = PlayerColor.getValue();
+
+		if (PlayerColors.contains(color)) {
+			this.Showdialog("Player Colour", "Please define a unique Player Color");
+			return;
+		}
+
+		PlayerColors.add(color);
+
+		int Start = (int) (StartGameScore.getValue());
+		int End = (int) (EndGameScore.getValue());
+		int Start_value = (int) (EndGameScore.getValue());
+
 		// add Table column to player
 		@SuppressWarnings("rawtypes")
 		TableColumn firstNameCol = new TableColumn(NamePlayer);
@@ -193,8 +210,7 @@ public class ViewController implements Initializable {
 		PlayerCollection.setItems(items);
 		ScoreHis.getColumns().add(firstNameCol);
 
-		// playermanager.createPlayer(NamePlayer, color, Start, End,
-		// Start_value);
+		playermanager.createPlayer(NamePlayer, color, Start, End, Start_value);
 	}
 
 	@FXML
@@ -242,6 +258,10 @@ public class ViewController implements Initializable {
 		dart = new DartBoard(DartboardCanvas, height);
 		dart.DrawDartBoard();
 
+		this.setSlider(StartGameScore, 50);
+		this.setSlider(EndGameScore, 0);
+		this.setSlider(StartValueGameScore, 0);
+
 		XYChart.Series series1 = new XYChart.Series();
 		series1.setName("2003");
 		series1.getData().add(new XYChart.Data(austria, 25601.34));
@@ -284,6 +304,18 @@ public class ViewController implements Initializable {
 			sumup = 0;
 		}
 		return DartThrowCount++;
+	}
+
+	private void setSlider(Slider slider, int StartPosition) {
+		slider.setMin(0);
+		slider.setMax(100);
+		slider.setValue(StartPosition);
+		slider.setShowTickLabels(true);
+		slider.setShowTickMarks(true);
+		slider.setSnapToTicks(true);
+		slider.setMajorTickUnit(50);
+		slider.setMinorTickCount(5);
+		slider.setBlockIncrement(10);
 	}
 
 }
