@@ -14,29 +14,85 @@
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
-<?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1200.0" stylesheets="@../CSS/DartBackground.css" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.ViewController">
    <children>
-      <SplitPane dividerPositions="0.5" prefHeight="800.0" prefWidth="600.0">
+      <SplitPane dividerPositions="0.6035058430717863" prefHeight="800.0" prefWidth="600.0">
          <items>
-            <Canvas fx:id="DartboardCanvas" height="700.0" onMouseClicked="#DartboarClick" width="700.0" />
-            <SplitPane dividerPositions="0.5, 0.5" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0">
+            <SplitPane dividerPositions="0.7456140350877193" orientation="VERTICAL" prefHeight="798.0" prefWidth="652.0">
+              <items>
+                  <Canvas fx:id="DartboardCanvas" height="642.0" onMouseClicked="#DartboarClick" width="734.0" />
+                  <GridPane prefHeight="126.0" prefWidth="728.0">
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="394.0" minWidth="10.0" prefWidth="376.0" />
+                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="489.0" minWidth="10.0" prefWidth="256.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="234.0" minWidth="0.0" prefWidth="102.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                     <children>
+                        <Label fx:id="ShowCurrentPoints" alignment="CENTER_RIGHT" contentDisplay="RIGHT" prefHeight="50.0" prefWidth="250.0" text="Current Points ::" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                           <font>
+                              <Font name="Berlin Sans FB" size="36.0" />
+                           </font>
+                        </Label>
+                        <Label fx:id="ShowNextMove" prefHeight="103.0" prefWidth="500.0" text="Information About Next Throws">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Label>
+                        <Label fx:id="CurrentDartThrow" alignment="CENTER_RIGHT" contentDisplay="RIGHT" prefHeight="53.0" prefWidth="250.0" text="Dart Throw ::" GridPane.columnIndex="1">
+                           <font>
+                              <Font name="Berlin Sans FB" size="36.0" />
+                           </font>
+                        </Label>
+                        <Label fx:id="OverallPoints" alignment="CENTER_RIGHT" contentDisplay="RIGHT" prefHeight="50.0" prefWidth="250.0" text="Overall Points ::" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                           <font>
+                              <Font name="Berlin Sans FB" size="36.0" />
+                           </font>
+                        </Label>
+                        <Label prefHeight="88.0" prefWidth="367.0" text="Label" GridPane.rowIndex="1" />
+                        <Label fx:id="ShowDartThrow" alignment="CENTER" prefHeight="58.0" prefWidth="166.0" GridPane.columnIndex="2">
+                           <font>
+                              <Font name="Berlin Sans FB" size="36.0" />
+                           </font>
+                        </Label>
+                        <Label fx:id="ShowSumPoints" alignment="CENTER" prefHeight="169.0" prefWidth="134.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                           <font>
+                              <Font name="Berlin Sans FB" size="36.0" />
+                           </font>
+                        </Label>
+                        <Label fx:id="ShowOverallPoints" alignment="CENTER" prefHeight="193.0" prefWidth="98.0" GridPane.columnIndex="2" GridPane.rowIndex="2">
+                           <font>
+                              <Font name="Berlin Sans FB" size="36.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </GridPane>
+              </items>
+            </SplitPane>
+            <SplitPane dividerPositions="0.5375939849624061, 0.5451127819548872" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0">
               <items>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                      <children>
-                        <TabPane layoutX="101.0" layoutY="114.0" prefHeight="396.0" prefWidth="492.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                        <TabPane fx:id="OverviewTabPane" layoutX="101.0" layoutY="114.0" prefHeight="396.0" prefWidth="492.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                           <tabs>
                             <Tab text="Untitled Tab 1">
                                  <content>
                                     <VBox prefHeight="200.0" prefWidth="100.0">
                                        <children>
-                                          <HBox prefHeight="326.0" prefWidth="492.0">
+                                          <HBox fx:id="StartGameHBox" prefHeight="326.0" prefWidth="492.0">
                                              <children>
                                                 <VBox prefHeight="324.0" prefWidth="245.0">
                                                    <children>
@@ -75,7 +131,7 @@
                                                                </HBox.margin></ListView>
                                                             <VBox prefHeight="204.0" prefWidth="118.0">
                                                                <children>
-                                                                  <Button fx:id="UpPlsayer" mnemonicParsing="false" onMouseClicked="#ChangePlayerUp" prefHeight="25.0" prefWidth="56.0" text="Up">
+                                                                  <Button fx:id="UpPlayer" mnemonicParsing="false" onMouseClicked="#ChangePlayerUp" prefHeight="25.0" prefWidth="56.0" text="Up">
                                                                      <VBox.margin>
                                                                         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                                                                      </VBox.margin>
@@ -189,16 +245,12 @@
                                     </VBox>
                                  </content>
                               </Tab>
-                            <Tab text="Untitled Tab 2">
-                                 <content>
-                                    <TableView fx:id="ScoreHis" prefHeight="200.0" prefWidth="200.0" />
-                                 </content>
-                              </Tab>
+                            <Tab fx:id="PointOverview" text="Untitled Tab 2" />
                           </tabs>
                         </TabPane>
                      </children>
                   </AnchorPane>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="395.0" prefWidth="531.0" />
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="6.0" prefWidth="522.0" />
                   <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE">
                     <tabs>
                       <Tab text="Untitled Tab 1">

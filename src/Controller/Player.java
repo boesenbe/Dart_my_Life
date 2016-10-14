@@ -1,5 +1,9 @@
 package Controller;
 
+import java.util.ArrayList;
+
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.paint.Color;
 
 public class Player {
@@ -9,6 +13,7 @@ public class Player {
 	private int Start;
 	private int End;
 	private int Start_value;
+	private ArrayList<Integer> AllPoints;
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
@@ -21,6 +26,7 @@ public class Player {
 		this.setStart(Start);
 		this.setEnd(End);
 		this.setStart_value(Start_value);
+		AllPoints = new ArrayList<>();
 	}
 
 	public String getName() {
@@ -63,6 +69,30 @@ public class Player {
 		Start_value = start_value;
 	}
 	
+	public void addPoints(int CurrentPoints){
+		AllPoints.add(CurrentPoints);
+	}
+	
+	public  ArrayList<Integer> getPoints(){
+		return AllPoints;
+	}
+	
+	public int subPoints(int CurrentPoints, int OldPoints) {
+		int NewScore = OldPoints - CurrentPoints;
+		return NewScore;
+	}
+	
+	public String getPointstoString() {
+        return email;
+    }
+	
+	public Boolean checkEnd() {
+		if(Start == End){
+			return true;
+		}else{
+			return false;
+		}
+	}
 	
 
 }
