@@ -10,9 +10,10 @@ public class Player {
 
 	private String name;
 	private Color color;
+	private int RoundCount;
+	private int StartThrow;
+	private int EndThrow;
 	private int Start;
-	private int End;
-	private int Start_value;
 	private ArrayList<Integer> AllPoints;
 
 	public static void main(String[] args) {
@@ -20,12 +21,13 @@ public class Player {
 
 	}
 
-	public Player(String name, Color color, int Start, int End, int Start_value) {
+	public Player(String name, Color color, int StartThrow, int EndThrow, int Start) {
 		this.setName(name);
 		this.setColor(color);
+		this.setStartThrow(StartThrow);
+		this.setEndThrow(EndThrow);
 		this.setStart(Start);
-		this.setEnd(End);
-		this.setStart_value(Start_value);
+		this.setRoundCount(0);
 		AllPoints = new ArrayList<>();
 	}
 
@@ -45,6 +47,22 @@ public class Player {
 		this.color = color;
 	}
 
+	public int getStartThrow() {
+		return StartThrow;
+	}
+
+	public void setStartThrow(int startthrow) {
+		StartThrow = startthrow;
+	}
+
+	public int getEndThrow() {
+		return EndThrow;
+	}
+
+	public void setEndThrow(int endthrow) {
+		EndThrow = endthrow;
+	}
+
 	public int getStart() {
 		return Start;
 	}
@@ -52,21 +70,13 @@ public class Player {
 	public void setStart(int start) {
 		Start = start;
 	}
-
-	public int getEnd() {
-		return End;
+	
+	public int getRoundCount() {
+		return RoundCount;
 	}
 
-	public void setEnd(int end) {
-		End = end;
-	}
-
-	public int getStart_value() {
-		return Start_value;
-	}
-
-	public void setStart_value(int start_value) {
-		Start_value = start_value;
+	public void setRoundCount(int roundcount) {
+		RoundCount = roundcount;
 	}
 	
 	public void addPoints(int CurrentPoints){
@@ -81,18 +91,7 @@ public class Player {
 		int NewScore = OldPoints - CurrentPoints;
 		return NewScore;
 	}
-	
-	public String getPointstoString() {
-        return email;
-    }
-	
-	public Boolean checkEnd() {
-		if(Start == End){
-			return true;
-		}else{
-			return false;
-		}
-	}
+
 	
 
 }

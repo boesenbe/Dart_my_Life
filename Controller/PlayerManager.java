@@ -19,8 +19,8 @@ public class PlayerManager {
 		AllPlayer = new ArrayList<>();
 	}
 
-	public void createPlayer(String name, Color color, int Start, int End, int Start_value) {
-		player = new Player(name, color, Start, End, Start_value);
+	public void createPlayer(String name, Color color, int StartThrows, int EndThrows, int Start) {
+		player = new Player(name, color, StartThrows, EndThrows, Start);
 		this.addPlayer();
 	}
 
