@@ -1,7 +1,5 @@
 package Controller;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 
 import javafx.collections.ObservableList;
@@ -12,7 +10,6 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.chart.BarChart;
 
 import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.ScatterChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -32,7 +29,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 
 import javafx.scene.paint.Color;
-import javafx.scene.shape.ArcType;
 import javafx.util.StringConverter;
 
 import java.net.URL;
@@ -99,7 +95,7 @@ public class ViewController implements Initializable {
 		int y = (int) e.getY();
 
 		points = new DartBoardPoints(DartboardCanvas.getHeight(), x, y);
-
+		GraphicsContext gc = DartboardCanvas.getGraphicsContext2D();
 		Player CurrentPlayer = playermanager.getPlayer().get(countPlayer);
 
 		if (CurrentPlayer.getStartThrow() == 1 && CurrentPlayer.getRoundCount() == 0
@@ -130,30 +126,56 @@ public class ViewController implements Initializable {
 			Points = 0;
 
 		int OldPoints = Integer.parseInt(PlayerColumns.get(countPlayer).get(PlayerColumns.get(countPlayer).size() - 1));
-		String CurrentPoints = Integer.toString(CurrentPlayer.subPoints(Points, OldPoints));
-		PlayerColumns.get(countPlayer).add(CurrentPoints);
+		int CurrentPoints = CurrentPlayer.subPoints(Points, OldPoints);
+		String CurrentPointsString = Integer.toString(CurrentPoints);
+
+		if (CurrentPoints < 0) {
+			CurrentPointsString = Integer.toString(OldPoints);
+		} else if (CurrentPoints == 0) {
+			if (CurrentPlayer.getEndThrow() == 3) {
+				this.drawThrowPoint(gc, x, y);
+				this.Showdialog("GAME END", "PLAYER " + CurrentPlayer.getName() + " is the winner!");
+				DartboardCanvas.setDisable(true);
+				return;
+			} else if (CurrentPlayer.getEndThrow() == 1) {
+				if (points.check_double_ring() != 0) {
+					this.drawThrowPoint(gc, x, y);
+					this.Showdialog("GAME END", "PLAYER " + CurrentPlayer.getName() + " is the winner!");
+					DartboardCanvas.setDisable(true);
+					return;
+				} else
+					CurrentPointsString = Integer.toString(OldPoints);
+
+			} else if (CurrentPlayer.getEndThrow() == 2) {
+				if (points.check_triple_ring() != 0) {
+					this.drawThrowPoint(gc, x, y);
+					this.Showdialog("GAME END", "PLAYER " + CurrentPlayer.getName() + " is the winner!");
+					DartboardCanvas.setDisable(true);
+					return;
+				} else
+					CurrentPointsString = Integer.toString(OldPoints);
+			}
+
+		}
+
+		PlayerColumns.get(countPlayer).add(CurrentPointsString);
 		ls = FXCollections.observableList(PlayerColumns.get(countPlayer));
 
 		PlayerLists.get(countPlayer).setItems(ls);
 
 		sumPoints = sumPoints + Points;
 
-		ShowOverallPoints.setText(CurrentPoints);
+		ShowOverallPoints.setText(CurrentPointsString);
 		ShowDartThrow.setText(Integer.toString(countPlayerThrow));
 		ShowSumPoints.setText(Integer.toString(sumPoints));
 
-		if (OldPoints <= 170) {
+		if (CurrentPoints <= 170) {
 			ShowThrowHint.setText(FinishTable.FinishTable.get(OldPoints));
 		}
 
-		GraphicsContext gc = DartboardCanvas.getGraphicsContext2D();
+		this.drawThrowPoint(gc, x, y);
 
-		gc.setFill(Color.BLACK);
-		gc.fillOval(x - 3, y - 3, 16, 16);
-		gc.setFill(playermanager.getPlayer().get(countPlayer).getColor());
-		gc.fillOval(x, y, 10, 10);
-
-		BarChartData.get(countPlayer).getData().add(new XYChart.Data("", Integer.parseInt(CurrentPoints)));
+		BarChartData.get(countPlayer).getData().add(new XYChart.Data("", Integer.parseInt(CurrentPointsString)));
 
 		if (countPlayerThrow == 3) {
 			if (playermanager.getPlayer().size() >= 2) {
@@ -173,6 +195,13 @@ public class ViewController implements Initializable {
 		countPlayerThrow++;
 		countThrow++;
 
+	}
+
+	private void drawThrowPoint(GraphicsContext gc, int x, int y) {
+		gc.setFill(Color.BLACK);
+		gc.fillOval(x - 3, y - 3, 16, 16);
+		gc.setFill(playermanager.getPlayer().get(countPlayer).getColor());
+		gc.fillOval(x, y, 10, 10);
 	}
 
 	@FXML
@@ -209,6 +238,7 @@ public class ViewController implements Initializable {
 		PlayerColor.setDisable(true);
 		PlayerCollection.setDisable(true);
 		DartboardCanvas.setVisible(true);
+		StartGame.setVisible(true);
 
 		HBox tabC_vBox = new HBox();
 
@@ -223,7 +253,7 @@ public class ViewController implements Initializable {
 			tabC_vBox.getChildren().add(PlayerLists.get(i));
 			player.setStartThrow((int) (BeginGameThrows.getValue()));
 			player.setEndThrow((int) (EndGameThrows.getValue()));
-			if(player.getStartThrow()==3){
+			if (player.getStartThrow() == 3) {
 				player.setRoundCount(1);
 			}
 
