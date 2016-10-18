@@ -10,16 +10,11 @@ public class Player {
 
 	private String name;
 	private Color color;
-	private int RoundCount;
+	private Boolean State;
 	private int StartThrow;
 	private int EndThrow;
 	private int Start;
-	private ArrayList<Integer> AllPoints;
-
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
-	}
+	private int CurrentThrow;
 
 	public Player(String name, Color color, int StartThrow, int EndThrow, int Start) {
 		this.setName(name);
@@ -27,8 +22,8 @@ public class Player {
 		this.setStartThrow(StartThrow);
 		this.setEndThrow(EndThrow);
 		this.setStart(Start);
-		this.setRoundCount(0);
-		AllPoints = new ArrayList<>();
+		this.setStartEndState(false);
+		this.setCurrentThrow(0);
 	}
 
 	public String getName() {
@@ -70,28 +65,26 @@ public class Player {
 	public void setStart(int start) {
 		Start = start;
 	}
-	
-	public int getRoundCount() {
-		return RoundCount;
+
+	public Boolean getStartEndState() {
+		return State;
 	}
 
-	public void setRoundCount(int roundcount) {
-		RoundCount = roundcount;
+	public void setStartEndState(Boolean state) {
+		State = state;
 	}
-	
-	public void addPoints(int CurrentPoints){
-		AllPoints.add(CurrentPoints);
+
+	public void setCurrentThrow(int currentthrow) {
+		CurrentThrow = currentthrow;
 	}
-	
-	public  ArrayList<Integer> getPoints(){
-		return AllPoints;
+
+	public int getCurrentThrow() {
+		return CurrentThrow;
 	}
-	
+
 	public int subPoints(int CurrentPoints, int OldPoints) {
 		int NewScore = OldPoints - CurrentPoints;
 		return NewScore;
 	}
-
-	
 
 }

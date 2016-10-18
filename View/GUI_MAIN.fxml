@@ -14,6 +14,7 @@
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
@@ -28,7 +29,7 @@
             <SplitPane dividerPositions="0.7456140350877193" orientation="VERTICAL" prefHeight="798.0" prefWidth="652.0">
               <items>
                   <Canvas fx:id="DartboardCanvas" height="650.0" onMouseClicked="#DartboarClick" width="650.0" />
-                  <GridPane prefHeight="126.0" prefWidth="728.0">
+                  <GridPane fx:id="GridPaneGameInfo" prefHeight="126.0" prefWidth="728.0">
                     <columnConstraints>
                       <ColumnConstraints hgrow="SOMETIMES" maxWidth="394.0" minWidth="10.0" prefWidth="376.0" />
                       <ColumnConstraints hgrow="SOMETIMES" maxWidth="489.0" minWidth="10.0" prefWidth="256.0" />
@@ -79,6 +80,11 @@
                               <Font name="Berlin Sans FB" size="36.0" />
                            </font>
                         </Label>
+                        <Label fx:id="NamePlayer" alignment="CENTER" contentDisplay="RIGHT" prefHeight="47.0" prefWidth="405.0" GridPane.rowIndex="2">
+                           <font>
+                              <Font name="Gigi" size="24.0" />
+                           </font>
+                        </Label>
                      </children>
                   </GridPane>
               </items>
@@ -87,7 +93,7 @@
               <items>
                   <TabPane fx:id="OverviewTabPane" prefHeight="396.0" prefWidth="492.0" tabClosingPolicy="UNAVAILABLE">
                     <tabs>
-                      <Tab text="Untitled Tab 1">
+                      <Tab text="Game Options">
                            <content>
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
@@ -244,7 +250,12 @@
                               </VBox>
                            </content>
                         </Tab>
-                      <Tab fx:id="PointOverview" text="Untitled Tab 2" />
+                      <Tab fx:id="PointOverview" text="Overview" />
+                        <Tab text="High Score">
+                          <content>
+                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                          </content>
+                        </Tab>
                     </tabs>
                   </TabPane>
                   <BarChart fx:id="barChart" prefHeight="361.0" prefWidth="492.0">

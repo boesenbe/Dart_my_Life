@@ -1,16 +1,20 @@
 package Controller;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.chart.BarChart;
 
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.chart.XYChart.Series;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -24,11 +28,13 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 
 import javafx.scene.input.MouseEvent;
-
+import javafx.scene.layout.Background;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.util.StringConverter;
 
 import java.net.URL;
@@ -38,6 +44,8 @@ import java.util.List;
 
 import java.util.ResourceBundle;
 
+import com.sun.javafx.charts.Legend;
+
 import View.DartBoard;
 import View.DartBoardPoints;
 
@@ -45,11 +53,10 @@ public class ViewController implements Initializable {
 
 	private int countPlayerThrow = 1;
 	private int sumPoints = 0;
-	private double[] rgb = { 1, 1, 1 };
 	private Boolean flagPlayerInGame = false;
 	private int countPlayer = 0;
 	private int countThrow = 0;
-	private int Points;
+	private String CurrentPointsString;
 	private ArrayList<Color> PlayerColors = new ArrayList<>();
 	private DartBoard dart;
 	private DartBoardPoints points;
@@ -62,6 +69,9 @@ public class ViewController implements Initializable {
 	private List<List<String>> PlayerColumns = new ArrayList<List<String>>();
 	@SuppressWarnings("rawtypes")
 	private ArrayList<XYChart.Series> BarChartData = new ArrayList<>();
+	private XYChart.Data<String, Number> ChartData;
+	@SuppressWarnings("restriction")
+	private ArrayList<Legend> Legend = new ArrayList<>();
 
 	@FXML
 	private Canvas DartboardCanvas;
@@ -77,6 +87,9 @@ public class ViewController implements Initializable {
 
 	@FXML
 	private Label ShowOverallPoints;
+	
+	@FXML
+	private Label NamePlayer;
 
 	@FXML
 	private Label ShowThrowHint;
@@ -97,37 +110,134 @@ public class ViewController implements Initializable {
 		points = new DartBoardPoints(DartboardCanvas.getHeight(), x, y);
 		GraphicsContext gc = DartboardCanvas.getGraphicsContext2D();
 		Player CurrentPlayer = playermanager.getPlayer().get(countPlayer);
+		
+		
 
-		if (CurrentPlayer.getStartThrow() == 1 && CurrentPlayer.getRoundCount() == 0
-				&& points.check_double_ring() != 0) {
-			Points = points.check_double_ring();
-			CurrentPlayer.setRoundCount(1);
+		// Check normal Dart throw Points
+		int Point = checknomalPoints(points);
 
-		} else if (CurrentPlayer.getStartThrow() == 2 && CurrentPlayer.getRoundCount() == 0
-				&& points.check_triple_ring() != 0) {
-			Points = points.check_triple_ring();
-			CurrentPlayer.setRoundCount(1);
-
-		} else if (CurrentPlayer.getRoundCount() == 0) {
-			Points = 0;
-		} else if (points.check_bulls_eye() != 0) {
-			Points = points.check_bulls_eye();
-		} else if (points.check_outer_bull() != 0) {
-			Points = points.check_outer_bull();
-		} else if (points.check_inner_ring() != 0) {
-			Points = points.check_inner_ring();
-		} else if (points.check_triple_ring() != 0) {
-			Points = points.check_triple_ring();
-		} else if (points.check_outer_ring() != 0) {
-			Points = points.check_outer_ring();
-		} else if (points.check_double_ring() != 0) {
-			Points = points.check_double_ring();
-		} else
-			Points = 0;
+		// Method to check the start Condition
+		Point = checkStartCondition(CurrentPlayer, Point);
 
 		int OldPoints = Integer.parseInt(PlayerColumns.get(countPlayer).get(PlayerColumns.get(countPlayer).size() - 1));
-		int CurrentPoints = CurrentPlayer.subPoints(Points, OldPoints);
-		String CurrentPointsString = Integer.toString(CurrentPoints);
+		int CurrentPoints = CurrentPlayer.subPoints(Point, OldPoints);
+		CurrentPointsString = Integer.toString(CurrentPoints);
+
+		// Set Bar chart Data
+
+		XYChart.Data<String, Number> data = new XYChart.Data("", Integer.parseInt(CurrentPointsString));
+
+		BarchartListner(CurrentPlayer, data);
+
+		BarChartData.get(countPlayer).getData().add(data);
+
+		// Method to check the end Condition
+		checkEndCondition(CurrentPlayer, OldPoints, CurrentPoints, gc, x, y);
+
+		PlayerColumns.get(countPlayer).add(CurrentPointsString);
+		ls = FXCollections.observableList(PlayerColumns.get(countPlayer));
+
+		PlayerLists.get(countPlayer).setItems(ls);
+
+		sumPoints = sumPoints + Point;
+
+		if(CurrentPlayer.getCurrentThrow()==0){
+			GridPaneGameInfo.setStyle("-fx-background-color: "+PlayerColortoString(CurrentPlayer)+";");
+		}
+		ShowOverallPoints.setText(CurrentPointsString);
+		ShowDartThrow.setText(Integer.toString(countPlayerThrow));
+		ShowSumPoints.setText(Integer.toString(sumPoints));
+		NamePlayer.setText(CurrentPlayer.getName()); 
+
+		// Show next Throw Hint
+		if (CurrentPoints <= 170) {
+			ShowThrowHint.setText(FinishTable.FinishTable.get(CurrentPoints));
+		}
+
+		
+		drawThrowPoint(gc, x, y);
+		
+		// Check for round change
+		if (countPlayerThrow == 3) {
+			if (playermanager.getPlayer().size() >= 2) {
+				countPlayerThrow = 1;
+				sumPoints = 0;
+				this.Showdialog("NEXT PLAYER", "NEXT PLAYERS MOVE!");
+				ShowOverallPoints.setText("");
+				ShowDartThrow.setText("");
+				ShowSumPoints.setText("");
+				ShowThrowHint.setText("");
+				NamePlayer.setText("");
+
+				countThrow++;
+				return;
+			}
+		}
+			
+		countPlayerThrow++;
+		countThrow++;
+
+	}
+	
+	private String PlayerColortoString(Player CurrenPlayer){
+		
+		int red = (int) (CurrenPlayer.getColor().getRed()*255);
+		int green = (int) (CurrenPlayer.getColor().getGreen()*255);
+		int blue = (int) (CurrenPlayer.getColor().getBlue()*255);
+		
+		String ColorString = "rgb("+red+","+green+","+blue+")";
+		return ColorString;
+	}
+
+	private void BarchartListner(Player CurrentPlayer, XYChart.Data<String, Number> data) {
+
+		data.nodeProperty().addListener(new ChangeListener<Node>() {
+			@Override
+			public void changed(ObservableValue<? extends Node> ov, Node oldNode, Node newNode) {
+
+				newNode.setStyle("-fx-bar-fill: "+PlayerColortoString(CurrentPlayer)+";");
+
+			}
+		});
+	}
+
+	private int checknomalPoints(DartBoardPoints points) {
+		if (points.check_bulls_eye() != 0) {
+			return points.check_bulls_eye();
+		} else if (points.check_outer_bull() != 0) {
+			return points.check_outer_bull();
+		} else if (points.check_inner_ring() != 0) {
+			return points.check_inner_ring();
+		} else if (points.check_triple_ring() != 0) {
+			return points.check_triple_ring();
+		} else if (points.check_outer_ring() != 0) {
+			return points.check_outer_ring();
+		} else if (points.check_double_ring() != 0) {
+			return points.check_double_ring();
+		} else
+			return 0;
+	}
+
+	private int checkStartCondition(Player CurrentPlayer, int Point) {
+		if (CurrentPlayer.getStartThrow() == 1 && CurrentPlayer.getStartEndState() == false
+				&& points.check_double_ring() != 0) {
+			CurrentPlayer.setStartEndState(true);
+			return points.check_double_ring();
+
+		} else if (CurrentPlayer.getStartThrow() == 2 && CurrentPlayer.getStartEndState() == false
+				&& points.check_triple_ring() != 0) {
+			CurrentPlayer.setStartEndState(true);
+			return points.check_triple_ring();
+
+		} else if (CurrentPlayer.getStartEndState() == false) {
+			return 0;
+		} else
+			return Point;
+
+	}
+
+	private void checkEndCondition(Player CurrentPlayer, int OldPoints, int CurrentPoints, GraphicsContext gc, int x,
+			int y) {
 
 		if (CurrentPoints < 0) {
 			CurrentPointsString = Integer.toString(OldPoints);
@@ -157,56 +267,21 @@ public class ViewController implements Initializable {
 			}
 
 		}
-
-		PlayerColumns.get(countPlayer).add(CurrentPointsString);
-		ls = FXCollections.observableList(PlayerColumns.get(countPlayer));
-
-		PlayerLists.get(countPlayer).setItems(ls);
-
-		sumPoints = sumPoints + Points;
-
-		ShowOverallPoints.setText(CurrentPointsString);
-		ShowDartThrow.setText(Integer.toString(countPlayerThrow));
-		ShowSumPoints.setText(Integer.toString(sumPoints));
-
-		if (CurrentPoints <= 170) {
-			ShowThrowHint.setText(FinishTable.FinishTable.get(OldPoints));
-		}
-
-		this.drawThrowPoint(gc, x, y);
-
-		BarChartData.get(countPlayer).getData().add(new XYChart.Data("", Integer.parseInt(CurrentPointsString)));
-
-		if (countPlayerThrow == 3) {
-			if (playermanager.getPlayer().size() >= 2) {
-				countPlayerThrow = 1;
-				sumPoints = 0;
-				this.Showdialog("NEXT PLAYER", "NEXT PLAYERS MOVE!");
-				ShowOverallPoints.setText("");
-				ShowDartThrow.setText("");
-				ShowSumPoints.setText("");
-				ShowThrowHint.setText("");
-
-				countThrow++;
-				return;
-			}
-		}
-
-		countPlayerThrow++;
-		countThrow++;
-
 	}
 
 	private void drawThrowPoint(GraphicsContext gc, int x, int y) {
 		gc.setFill(Color.BLACK);
-		gc.fillOval(x - 3, y - 3, 16, 16);
+		gc.fillOval(x - 8, y - 8, 16, 16);
 		gc.setFill(playermanager.getPlayer().get(countPlayer).getColor());
-		gc.fillOval(x, y, 10, 10);
+		gc.fillOval(x - 5, y - 5, 10, 10);
 	}
 
 	@FXML
 	private Slider BeginGameThrows;
-
+	
+	@FXML
+	private GridPane GridPaneGameInfo;
+	
 	@FXML
 	private Slider EndGameThrows;
 
@@ -237,8 +312,8 @@ public class ViewController implements Initializable {
 		UpPlayer.setDisable(true);
 		PlayerColor.setDisable(true);
 		PlayerCollection.setDisable(true);
+		StartGame.setDisable(true);
 		DartboardCanvas.setVisible(true);
-		StartGame.setVisible(true);
 
 		HBox tabC_vBox = new HBox();
 
@@ -254,16 +329,21 @@ public class ViewController implements Initializable {
 			player.setStartThrow((int) (BeginGameThrows.getValue()));
 			player.setEndThrow((int) (EndGameThrows.getValue()));
 			if (player.getStartThrow() == 3) {
-				player.setRoundCount(1);
+				player.setStartEndState(true);
 			}
 
 			BarChartData.add(new XYChart.Series());
-			BarChartData.get(i).setName(player.getName());
-			BarChartData.get(i).getData().add(new XYChart.Data("", player.getStart()));
+			ChartData = new XYChart.Data("", player.getStart());
+			BarchartListner(player, ChartData);
+			BarChartData.get(i).getData().add(ChartData);
 			barChart.getData().add(BarChartData.get(i));
+
 			i++;
 		}
-
+		GridPaneGameInfo.setStyle("-fx-background-color: "+PlayerColortoString(playermanager.getPlayer().get(0))+";");
+		NamePlayer.setText(playermanager.getPlayer().get(0).getName());
+		
+		barChart.setLegendVisible(false);
 		PointOverview.setContent(tabC_vBox);
 		OverviewTabPane.getTabs().add(PointOverview);
 		// OverviewTabPane.select(1);
@@ -372,7 +452,7 @@ public class ViewController implements Initializable {
 		dart.DrawDartBoard();
 		DartboardCanvas.setVisible(false);
 
-		this.setSlider(StartValueGameScore, 501, 301, 1101, 200, false);
+		this.setSlider(StartValueGameScore, 501, 301, 701, 200, false);
 		this.setSlider(EndGameThrows, 3, 1, 3, 1, true);
 		this.setSlider(BeginGameThrows, 3, 1, 3, 1, true);
 
