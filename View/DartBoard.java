@@ -10,11 +10,14 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.ArcType;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +29,7 @@ import Model.Data;
 
 import java.awt.Graphics2D;
 import java.awt.GraphicsDevice;
+import java.awt.RenderingHints;
 import java.awt.font.FontRenderContext;
 import java.awt.font.GlyphVector;
 
@@ -39,6 +43,7 @@ public class DartBoard {
 	private double outer_filling_dist;
 	private double triple_ring_dist;
 	private double inner_filling_dist;
+	private Map<String, ImagePattern> Imagepattern = getcolorpattern();
 
 	private Canvas DartboardCanvas;
 
@@ -51,8 +56,6 @@ public class DartBoard {
 		triple_ring_dist = (height / 2 - 10);
 		inner_filling_dist = (height / 2 - 10) + (outer_filling_dist - double_ring_dist);
 	}
-	
-	
 
 	public void DrawDartBoard() {
 		GraphicsContext gc = DartboardCanvas.getGraphicsContext2D();
@@ -94,40 +97,46 @@ public class DartBoard {
 		gc.fillArc(Arcs.get(i).get_x(), Arcs.get(i).get_y(), Arcs.get(i).get_width(), Arcs.get(i).get_height(),
 				Arcs.get(i).get_start(), Arcs.get(i).get_startAngle(), ArcType.ROUND);
 
-		/*
-		 * String[] dartnumbers =
-		 * {"3","19","7","16","8","11","14","9","12","5","20","1","18","4","13",
-		 * "6","10","15","2","17"}; int count_numbers = 0; for (int i1 = 0; i1 <
-		 * 20; i1++) {
-		 * 
-		 * //40 is exactly the middle between double ring and outer ring has to
-		 * be dynamic
-		 * 
-		 * int radius = (int)(height-height/100*15+10);
-		 * 
-		 * int r = radius; double radians = Math.toRadians(-count_numbers); int
-		 * x = (int)(r*Math.sin(radians)); int y = (int)(r*Math.cos(radians));
-		 * 
-		 * //gc.setRenderingHint(RenderingHints.KEY_ANTIALIASING, //
-		 * RenderingHints.VALUE_ANTIALIAS_ON);
-		 * 
-		 * gc.setFont(getDesiredFont());
-		 * 
-		 * String str = dartnumbers[i1];
-		 * 
-		 * Rectangle bounds = getStringBounds(gc, str, x, y); int stringwidth =
-		 * (int)(bounds.width); int stringheight = (int)(bounds.height);
-		 * 
-		 * 
-		 * gc.setColor(Color.WHITE); gc.drawString(str,
-		 * x+height-stringwidth/2+10, y+height+stringheight/2+10); count_numbers
-		 * = count_numbers+18;
-		 * 
-		 * // gc.setFill(Arcs.get(0).get_2DArc());
-		 * 
-		 * // g.fill(new Arc2D.Double( x, y, width, height, start, startAngle,
-		 * // arcAngle));
-		 */
+		String[] dartnumbers = { "3", "19", "7", "16", "8", "11", "14", "9", "12", "5", "20", "1", "18", "4", "13", "6",
+				"10", "15", "2", "17" };
+		int count_numbers = 0;
+
+		for (int i1 = 0; i1 < 20; i1++) {
+
+			// 40 is exactly the middle between double ring and outer ring has
+			// to
+			// be dynamic
+
+			int radius = (int) (height - 35);
+
+			int r = radius;
+
+			double radians = Math.toRadians(-count_numbers);
+
+			int x = (int) (r * Math.sin(radians)) + 10;
+			int y = (int) (r * Math.cos(radians)) - 10;
+
+			// Plot all Fonts
+			// List<String> test = javafx.scene.text.Font.getFamilies();
+			// System.out.println(test);
+
+			String str = dartnumbers[i1];
+
+			gc.setFill(Color.MOCCASIN);
+
+			gc.setFont(Font.font("AIGDT", FontWeight.EXTRA_BOLD, 50));
+
+			Text t = new Text();
+			t.setText(str);
+			t.setFont(Font.font("AIGDT", FontWeight.EXTRA_BOLD, 50));
+			double stringheight = t.getBoundsInLocal().getHeight();
+			double stringwidth = t.getBoundsInLocal().getWidth();
+
+			gc.fillText(str, x + height - stringwidth / 2, y + height + stringheight / 2);
+
+			count_numbers = count_numbers + 18;
+
+		}
 
 	}
 
@@ -138,8 +147,6 @@ public class DartBoard {
 	public List<DartBoardPieces> setDartboard() {
 
 		Arcs = new ArrayList<>();
-
-		Map<String, ImagePattern> Imagepattern = getcolorpattern();
 
 		// create outer circle
 		Arcs.add(new DartBoardPieces(10, 10, height * 2, height * 2, 0, 360, Arc2D.PIE, Imagepattern.get("black")));
@@ -198,12 +205,6 @@ public class DartBoard {
 		return Arcs;
 	}
 
-	private int get_screen_height() {
-		GraphicsDevice Mi = VIEW.Monitorsize;
-		int height = Mi.getDisplayMode().getHeight();
-		return height;
-	}
-
 	private Map<String, ImagePattern> getcolorpattern() {
 		Map<String, ImagePattern> Imagepattern = new HashMap<String, ImagePattern>();
 
@@ -211,20 +212,10 @@ public class DartBoard {
 		Imagepattern.put("green", new ImagePattern(new Image("/CSS/gruen.jpg")));
 		Imagepattern.put("red", new ImagePattern(new Image("/CSS/rot.jpg")));
 		Imagepattern.put("gray", new ImagePattern(new Image("/CSS/weiss.jpg")));
+		Imagepattern.put("number", new ImagePattern(new Image("/CSS/NumberBackground.jpg")));
 
 		return Imagepattern;
 	}
-
-	/*
-	 * private Font getDesiredFont() { return new Font(Font.SANS_SERIF,
-	 * Font.BOLD, height/100*15); }
-	 * 
-	 * private java.awt.Rectangle getStringBounds(GraphicsContext g2, String
-	 * str, float x, float y) { FontRenderContext frc =
-	 * g2.getFontRenderContext(); GlyphVector gv =
-	 * g2.getFont().createGlyphVector(frc, str); return gv.getPixelBounds(null,
-	 * x, y); }
-	 */
 
 	// ===============================================================
 	// FOR TESTING

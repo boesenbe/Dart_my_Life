@@ -7,7 +7,6 @@ public class DartBoardPoints {
 	private int x;
 	private int y;
 	private double height;
-	private double distance;
 	private double double_ring_dist;
 	private double outer_filling_dist;
 	private double triple_ring_dist;
