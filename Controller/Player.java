@@ -15,6 +15,8 @@ public class Player {
 	private int EndThrow;
 	private int Start;
 	private int CurrentThrow;
+	private int CurrentPoints;
+	
 
 	public Player(String name, Color color, int StartThrow, int EndThrow, int Start) {
 		this.setName(name);
@@ -77,6 +79,16 @@ public class Player {
 	public void setCurrentThrow(int currentthrow) {
 		CurrentThrow = currentthrow;
 	}
+	
+	public void setCurrentPoints(int currentpoints) {
+		CurrentPoints = currentpoints;
+	}
+
+	public int getCurrentPoints() {
+		return CurrentPoints;
+	}
+	
+	
 
 	public int getCurrentThrow() {
 		return CurrentThrow;
